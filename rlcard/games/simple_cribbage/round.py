@@ -42,7 +42,7 @@ class SimpleCribbageRound(object):
         self.count += RANK_PIPS(rank)
 
         score = 0
-        if self.count == 15 || (self.table and Card.rank(self.table[-1]) == rank):
+        if self.count == 15 or (self.table and Card.rank(self.table[-1]) == rank):
             score = 2
         elif not (players[0].hand or players[1].hand):
             score = 1

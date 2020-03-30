@@ -3,7 +3,7 @@ from copy import deepcopy
 from rlcard.games.simple_cribbage.dealer import SimpleCribbageDealer as Dealer
 from rlcard.games.simple_cribbage.player import SimpleCribbagePlayer as Player
 from rlcard.games.simple_cribbage.round import SimpleCribbageRound as Round
-from rlcard.games.simple_cribbage.card IMPORT RANKS, SUITS
+from rlcard.games.simple_cribbage.card import RANKS, SUITS
 
 
 NUM_CARDS_DEALT = 2

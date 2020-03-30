@@ -11,11 +11,11 @@ from rlcard.games.simple_cribbage.card import RANKS, SUITS, RANK_PIPS, RANK_TO_O
 
 
 ACTION_LIST = [r+s for r in RANKS for s in SUITS]
-ACTION_SPACE = {c:i for (i,c) in ACTION_LIST}
+ACTION_SPACE = {c:i for (i,c) in enumerate(ACTION_LIST)}
 
 
 def init_deck():
-    return [Card(r, s) for r in RANKS for r in SUITS]]
+    return [Card(r, s) for r in RANKS for r in SUITS]
 
 
 def cards2list(cards):
