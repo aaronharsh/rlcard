@@ -10,7 +10,7 @@ from rlcard.games.simple_cribbage.card import RANKS, SUITS, RANK_PIPS, RANK_TO_O
 
 
 
-ACTION_LIST = [r+s for r in RANKS for s in SUITS]
+ACTION_LIST = [r+'-'+s for r in RANKS for s in SUITS]
 ACTION_SPACE = {c:i for (i,c) in enumerate(ACTION_LIST)}
 
 
@@ -22,7 +22,12 @@ def cards2list(cards):
     return [card.get_str() for card in cards]
 
 
-def encode_cards(plane, hand):
+def card_str_rank_suit(card_str):
+    return card_str.split('-')
+
+
+def encode_card_strs(plane, card_strs):
     plane[:] = np.zeros(plane.shape)
-    for card in hand:
-        plane[RANK_TO_OFFSET[card.rank], SUIT_TO_OFFSET[card.suit]] = 1
+    for card_str in card_strs:
+        (rank, suit) = card_str_rank_suit(card_str)
+        plane[RANK_TO_OFFSET[rank], SUIT_TO_OFFSET[suit]] = 1
