@@ -45,3 +45,8 @@ register(  # 200213
     env_id='gin-rummy',
     entry_point='rlcard.envs.gin_rummy:GinRummyEnv',
 )
+
+register(
+    env_id='simple-cribbage',
+    entry_point='rlcard.envs.simple_cribbage:SimpleCribbageEnv',
+)

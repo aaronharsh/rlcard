@@ -40,3 +40,7 @@ register(
 register(
     model_id='gin-rummy-novice-rule',
     entry_point='rlcard.models.gin_rummy_rule_models:GinRummyNoviceRuleModel')
+
+register(
+    model_id='simple-cribbage-rule-v1',
+    entry_point='rlcard.models.simple_cribbage_rule_models:SimpleCribbageRuleModelV1')
