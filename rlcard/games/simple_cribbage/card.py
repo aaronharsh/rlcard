@@ -30,4 +30,4 @@ class SimpleCribbageCard(object):
 
     @staticmethod
     def print_cards(cards):
-        print(','.join([c.get_str() for c in cards]))
+        print(','.join(cards))
