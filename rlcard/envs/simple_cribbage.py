@@ -29,7 +29,7 @@ class SimpleCribbageEnv(Env):
         '''
         return models.load('simple-cribbage-rule-v1')
 
-    def _extract_state(self,simple_cribbageate):
+    def _extract_state(self, state):
         obs = np.zeros(STATE_SHAPE, dtype=int)
 
         encode_cards(obs[0], state['hand'])
