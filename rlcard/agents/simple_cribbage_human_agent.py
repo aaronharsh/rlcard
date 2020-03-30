@@ -51,10 +51,10 @@ def _print_state(state, action_record):
         player (int): Player id
     '''
     print('\n=============== Your Hand ===============')
-    SimpleCribbageCard.print_cards(state['hand'])
+    Card.print_cards(state['hand'])
     print('')
     print('=============== Cards on Table ===============')
-    SimpleCribbageCard.print_cards(state['table'])
+    Card.print_cards(state['table'])
     print('')
     print('======== Actions You Can Choose =========')
     actions = state['legal_actions']
