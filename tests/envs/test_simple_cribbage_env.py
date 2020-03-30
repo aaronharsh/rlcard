@@ -21,12 +21,12 @@ class TestSimpleCribbageEnv(unittest.TestCase):
         for legal_action in legal_actions:
             self.assertLessEqual(legal_action, 16)
 
-    # def test_step(self):
-    #     env = rlcard.make('uno')
-    #     state, _ = env.init_game()
-    #     action = np.random.choice(state['legal_actions'])
-    #     _, player_id = env.step(action)
-    #     self.assertEqual(player_id, env.game.round.current_player)
+    def test_step(self):
+        env = rlcard.make('simple-cribbage')
+        state, _ = env.init_game()
+        action = np.random.choice(state['legal_actions'])
+        _, player_id = env.step(action)
+        self.assertEqual(player_id, env.game.round.current_player)
 
     # def test_step_back(self):
     #     env = rlcard.make('uno', config={'allow_step_back':True})
