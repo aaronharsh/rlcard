@@ -8,7 +8,7 @@ from rlcard.games.simple_cribbage.utils import encode_cards
 from rlcard.games.simple_cribbage.utils import ACTION_SPACE, ACTION_LIST
 
 STATE_SHAPE = (
-  3, # player1, player2, table
+  2, # player, table
   NUM_RANKS,
   NUM_SUITS
 )
@@ -33,8 +33,7 @@ class SimpleCribbageEnv(Env):
         obs = np.zeros(STATE_SHAPE, dtype=int)
 
         encode_cards(obs[0], state['hand'])
-        encode_cards(obs[1], state['others_hand'])
-        encode_cards(obs[2], state['table'])
+        encode_cards(obs[1], state['table'])
 
         legal_action_ids = self._get_legal_actions()
         extracted_state = {'obs': obs, 'legal_actions': legal_action_ids}
