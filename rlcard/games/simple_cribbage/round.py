@@ -54,7 +54,7 @@ class SimpleCribbageRound(object):
 
 
     def get_legal_actions(self, players, player_id):
-        return players[player_id].hand
+        return cards2list(players[player_id].hand)
 
 
     def get_state(self, players, player_id):

@@ -1,5 +1,6 @@
 import unittest
 import numpy as np
+from numpy.testing import assert_array_equal
 
 from rlcard.games.simple_cribbage.game import SimpleCribbageGame as Game
 from rlcard.games.simple_cribbage.player import SimpleCribbagePlayer as Player
@@ -16,7 +17,7 @@ class TestSimpleCribbageMethods(unittest.TestCase):
     def test_get_action_num(self):
         game = Game()
         action_num = game.get_action_num()
-        self.assertEqual(action_num, 61)
+        self.assertEqual(action_num, 16)
 
     def test_init_game(self):
         game = Game()
@@ -73,27 +74,16 @@ class TestSimpleCribbageMethods(unittest.TestCase):
         success = game.step_back()
         self.assertEqual(success, False)
 
-    def test_encode_hand(self):
-        hand1 = ['y-1', 'r-8', 'b-9', 'y-reverse', 'r-skip']
-        encoded_hand1 = np.zeros((3, 4, 15), dtype=int)
-        encode_hand(encoded_hand1, hand1)
-        for index in range(15):
-            total = 0
-            for color in range(4):
-                total += encoded_hand1[0][color][index] + encoded_hand1[1][color][index] + encoded_hand1[2][color][index]
-            self.assertEqual(total, 4)
-        hand2 = ['r-wild', 'g-wild_draw_4']
-        encoded_hand2 = np.zeros((3, 4, 15), dtype=int)
-        encode_hand(encoded_hand2, hand2)
-        for color in range(4):
-            self.assertEqual(encoded_hand2[1][color][-2], 1)
-            self.assertEqual(encoded_hand2[1][color][-1], 1)
-
-    def test_encode_target(self):
-        encoded_target = np.zeros((4, 15), dtype=int)
-        target = 'r-1'
-        encode_target(encoded_target, target)
-        self.assertEqual(encoded_target[0][1], 1)
+    def test_encode_card_strs(self):
+        hand1 = ['A-D', '5-C', '5-S', '10-D', 'J-H']
+        encoded_hand1 = np.zeros((4, 4), dtype=int)
+        encode_card_strs(encoded_hand1, hand1)
+        assert_array_equal(
+            encoded_hand1,
+            [[0, 0, 1, 0],
+             [1, 0, 0, 1],
+             [0, 0, 1, 0],
+             [0, 1, 0, 0]])
 
     def test_player_get_player_id(self):
         player = Player(0)
