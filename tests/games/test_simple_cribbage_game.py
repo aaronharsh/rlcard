@@ -68,9 +68,9 @@ class TestSimpleCribbageMethods(unittest.TestCase):
 
         self.assertEqual(game.round.current_player, 1)
         self.assertEqual(cards2list(game.players[0].hand), [])
-        self.assertEqual(game.round.count, 11)
+        self.assertEqual(game.round.count, 21)
         self.assertTrue(game.round.is_over)
-        self.assertEqual(game.round.winner, 0)
+        self.assertEqual(game.round.winner, [0])
 
     def test_step_back(self):
         game = Game(allow_step_back=True)
