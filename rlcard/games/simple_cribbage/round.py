@@ -29,28 +29,27 @@ class SimpleCribbageRound(object):
             players: [SimpleCribbagePlayer]
             action: str
         '''
-        if action == 'draw':
-            self._perform_draw_action(players)
-            return None
-
         player = players[self.current_player]
         (rank, suit) = action.split('-')
 
-        player.hand = [card for card in player.hand if card != action]
+        player.hand = [card for card in player.hand if card.get_str() != action]
 
-        self.table.append(action)
         self.count += RANK_PIPS[rank]
 
         score = 0
         if self.count == 15 or (self.table and Card.rank(self.table[-1]) == rank):
             score = 2
-        elif not (players[0].hand or players[1].hand):
+        elif not players[0].hand and not players[1].hand:
             score = 1
 
         if score > 0:
             player.score += score
             self.is_over = True
             self.winner = [self.current_player]
+
+        self.table.append(action)
+
+        self.current_player = 1 - self.current_player
 
 
     def get_legal_actions(self, players, player_id):
@@ -67,6 +66,7 @@ class SimpleCribbageRound(object):
         state = {}
         player = players[player_id]
         state['hand'] = cards2list(player.hand)
+        state['others_hand'] = cards2list(players[1 - player_id].hand)
         state['table'] = self.table
         state['legal_actions'] = self.get_legal_actions(players, player_id)
         return state

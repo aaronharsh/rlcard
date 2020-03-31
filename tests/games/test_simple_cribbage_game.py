@@ -2,10 +2,11 @@ import unittest
 import numpy as np
 from numpy.testing import assert_array_equal
 
+from rlcard.games.simple_cribbage.card import SimpleCribbageCard as Card
 from rlcard.games.simple_cribbage.game import SimpleCribbageGame as Game
 from rlcard.games.simple_cribbage.player import SimpleCribbagePlayer as Player
 from rlcard.games.simple_cribbage.utils import ACTION_LIST
-from rlcard.games.simple_cribbage.utils import encode_card_strs
+from rlcard.games.simple_cribbage.utils import encode_card_strs, cards2list
 
 class TestSimpleCribbageMethods(unittest.TestCase):
 
@@ -23,7 +24,7 @@ class TestSimpleCribbageMethods(unittest.TestCase):
         game = Game()
         state, _ = game.init_game()
         total_cards = list(state['hand'] + state['others_hand'])
-        self.assertGreaterEqual(len(total_cards), 14)
+        self.assertGreaterEqual(len(total_cards), 4)
 
     def test_get_player_id(self):
         game = Game()
@@ -42,26 +43,18 @@ class TestSimpleCribbageMethods(unittest.TestCase):
     def test_step(self):
         game = Game()
         game.init_game()
-        action = np.random.choice(game.get_legal_actions())
-        state, next_player_id = game.step(action)
-        current = game.round.current_player
-        self.assertLessEqual(len(state['played_cards']), 2)
-        self.assertEqual(next_player_id, current)
+        game.players[0].hand = [Card('A', 'H'), Card('10', 'D')]
+        game.players[1].hand = [Card('10', 'S'), Card('J', 'C')]
 
-    def test_get_payoffs(self):
-        game = Game()
-        game.init_game()
-        while not game.is_over():
-            actions = game.get_legal_actions()
-            action = np.random.choice(actions)
-            state, _ = game.step(action)
-            total_cards = len(state['hand']) + len(state['others_hand']) + len(state['played_cards']) + len(game.round.dealer.deck)
-            self.assertEqual(total_cards, 108)
-        payoffs = game.get_payoffs()
-        total = 0
-        for payoff in payoffs:
-            total += payoff
-        self.assertEqual(total, 0)
+        self.assertEqual(game.round.current_player, 0)
+
+        game.step('A-H')
+
+        self.assertEqual(game.round.current_player, 1)
+        self.assertEqual(cards2list(game.players[0].hand), cards2list([Card('10', 'D')]))
+        self.assertEqual(game.round.count, 1)
+        self.assertFalse(game.round.is_over)
+        self.assertEqual(game.round.winner, None)
 
     def test_step_back(self):
         game = Game(allow_step_back=True)
