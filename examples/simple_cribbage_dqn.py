@@ -2,9 +2,14 @@
 '''
 
 import tensorflow as tf
+import numpy as np
 import os
 
 import rlcard
+from rlcard.envs.simple_cribbage import STATE_SHAPE
+from rlcard.games.simple_cribbage.card import SimpleCribbageCard as Card
+from rlcard.games.simple_cribbage.utils import encode_card_strs
+from rlcard.games.simple_cribbage.utils import ACTION_SPACE, INVERSE_ACTION_SPACE
 from rlcard.agents.dqn_agent import DQNAgent
 from rlcard.agents.random_agent import RandomAgent
 from rlcard.utils.utils import set_global_seed, tournament
@@ -67,6 +72,23 @@ with tf.Session() as sess:
         # Evaluate the performance. Play with random agents.
         if episode % evaluate_every == 0:
             logger.log_performance(env.timestep, tournament(eval_env, evaluate_num)[0])
+
+            obs = np.zeros(STATE_SHAPE, dtype=int)
+
+            card_strs = ['5-H', 'A-S']
+
+            encode_card_strs(obs[0], card_strs)
+            encode_card_strs(obs[1], [])
+
+            legal_action_ids = [ACTION_SPACE[c] for c in card_strs]
+            extracted_state = {'obs': obs, 'legal_actions': legal_action_ids}
+
+            (best_action, probs) = agent.eval_step(extracted_state)
+            decoded_probs = [(INVERSE_ACTION_SPACE[i], p) for (i, p) in enumerate(probs) if p != 0]
+
+            print("Evaluation of {}: choose {}, probs = {}".
+                format(card_strs, INVERSE_ACTION_SPACE[best_action], decoded_probs))
+
 
     # Close files in the logger
     logger.close_files()
