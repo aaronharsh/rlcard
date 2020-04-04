@@ -41,8 +41,6 @@ class SimpleCribbageRound(object):
             score = 2
         elif not players[0].hand and not players[1].hand:
             score = 1
-        elif action[0] == 'A':
-            score = 1
 
         if score > 0:
             player.score += score
