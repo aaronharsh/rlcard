@@ -36,6 +36,23 @@ log_dir = './experiments/simple_cribbage_dqn_result/'
 # Set a global seed
 set_global_seed(0)
 
+
+def show_evaluation(card_strs, agent):
+    obs = np.zeros(STATE_SHAPE, dtype=int)
+
+    encode_card_strs(obs[0], card_strs)
+    encode_card_strs(obs[1], [])
+
+    legal_action_ids = [ACTION_SPACE[c] for c in card_strs]
+    extracted_state = {'obs': obs, 'legal_actions': legal_action_ids}
+
+    (best_action, probs) = agent.eval_step(extracted_state)
+    decoded_probs = [(INVERSE_ACTION_SPACE[i], p) for (i, p) in enumerate(probs) if p != 0]
+
+    print("Evaluation of {}: choose {}, probs = {}".
+        format(card_strs, INVERSE_ACTION_SPACE[best_action], decoded_probs))
+
+
 with tf.Session() as sess:
 
     # Initialize a global step
@@ -73,21 +90,10 @@ with tf.Session() as sess:
         if episode % evaluate_every == 0:
             logger.log_performance(env.timestep, tournament(eval_env, evaluate_num)[0])
 
-            obs = np.zeros(STATE_SHAPE, dtype=int)
-
-            card_strs = ['5-H', 'A-S']
-
-            encode_card_strs(obs[0], card_strs)
-            encode_card_strs(obs[1], [])
-
-            legal_action_ids = [ACTION_SPACE[c] for c in card_strs]
-            extracted_state = {'obs': obs, 'legal_actions': legal_action_ids}
-
-            (best_action, probs) = agent.eval_step(extracted_state)
-            decoded_probs = [(INVERSE_ACTION_SPACE[i], p) for (i, p) in enumerate(probs) if p != 0]
-
-            print("Evaluation of {}: choose {}, probs = {}".
-                format(card_strs, INVERSE_ACTION_SPACE[best_action], decoded_probs))
+            show_evaluation(['5-H', 'A-S'], agent)
+            show_evaluation(['J-S', '5-D'], agent)
+            show_evaluation(['J-S', '10-D'], agent)
+            show_evaluation(['A-S', '5-H'], agent)
 
 
     # Close files in the logger
