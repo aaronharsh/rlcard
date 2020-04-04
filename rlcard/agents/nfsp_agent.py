@@ -197,7 +197,7 @@ class NFSPAgent(object):
 
         return action
 
-    def eval_step(self, state):
+    def eval_step(self, state, evaluate_with=None):
         ''' Use the average policy for evaluation purpose
 
         Args:
@@ -207,9 +207,12 @@ class NFSPAgent(object):
             action (int): An action id.
             probs (list): The list of action probabilies
         '''
-        if self.evaluate_with == 'best_response':
+        if not evaluate_with:
+            evaluate_with = self.evaluate_with
+
+        if evaluate_with == 'best_response':
             action, probs = self._rl_agent.eval_step(state)
-        elif self.evaluate_with == 'average_policy':
+        elif evaluate_with == 'average_policy':
             obs = state['obs']
             legal_actions = state['legal_actions']
             probs = self._act(obs)
