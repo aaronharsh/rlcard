@@ -22,7 +22,7 @@ eval_env = rlcard.make('simple-cribbage')
 # Set the iterations numbers and how frequently we evaluate/save plot
 evaluate_every = 10000
 evaluate_num = 10000
-episode_num = 200000
+episode_num = 1000000
 
 # The intial memory size
 memory_init_size = 1000
@@ -45,7 +45,7 @@ def show_evaluation(card_strs, agent):
     legal_action_ids = [ACTION_SPACE[c] for c in card_strs]
     extracted_state = {'obs': obs, 'legal_actions': legal_action_ids}
 
-    (best_action, probs) = agent.eval_step(extracted_state)
+    (best_action, probs) = agent.eval_step(extracted_state, 'best_response')
     decoded_probs = [(INVERSE_ACTION_SPACE[i], p) for (i, p) in enumerate(probs) if p != 0]
 
     print("Evaluation of {}: choose {}, probs = {}".
@@ -100,7 +100,6 @@ with tf.Session() as sess:
             logger.log_performance(env.timestep, tournament(eval_env, evaluate_num)[0])
 
             show_evaluation(['5-H', 'A-S'], agent)
-            show_evaluation(['A-S', '5-H'], agent)
             show_evaluation(['A-S', '5-D'], agent)
             show_evaluation(['J-S', '5-D'], agent)
             show_evaluation(['J-S', '10-D'], agent)
