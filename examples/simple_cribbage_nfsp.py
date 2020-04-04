@@ -36,6 +36,21 @@ log_dir = './experiments/simple_cribbage_nfsp_result/'
 # Set a global seed
 set_global_seed(0)
 
+def show_evaluation(card_strs, agent):
+    obs = np.zeros(STATE_SHAPE, dtype=int)
+
+    encode_card_strs(obs[0], card_strs)
+    encode_card_strs(obs[1], [])
+
+    legal_action_ids = [ACTION_SPACE[c] for c in card_strs]
+    extracted_state = {'obs': obs, 'legal_actions': legal_action_ids}
+
+    (best_action, probs) = agent.eval_step(extracted_state)
+    decoded_probs = [(INVERSE_ACTION_SPACE[i], p) for (i, p) in enumerate(probs) if p != 0]
+
+    print("Evaluation of {}: choose {}, probs = {}".
+        format(card_strs, INVERSE_ACTION_SPACE[best_action], decoded_probs))
+
 with tf.Session() as sess:
 
     # Initialize a global step
@@ -48,12 +63,12 @@ with tf.Session() as sess:
                           scope='nfsp' + str(i),
                           action_num=env.action_num,
                           state_shape=env.state_shape,
-                          hidden_layers_sizes=[128,128],
+                          hidden_layers_sizes=[64,64],
                           min_buffer_size_to_learn=memory_init_size,
                           q_replay_memory_init_size=memory_init_size,
                           train_every = train_every,
                           q_train_every=train_every,
-                          q_mlp_layers=[128,128])
+                          q_mlp_layers=[64,64])
         agents.append(agent)
     random_agent = RandomAgent(action_num=eval_env.action_num)
 
@@ -84,21 +99,11 @@ with tf.Session() as sess:
         if episode % evaluate_every == 0:
             logger.log_performance(env.timestep, tournament(eval_env, evaluate_num)[0])
 
-            obs = np.zeros(STATE_SHAPE, dtype=int)
-
-            card_strs = ['5-H', 'A-S']
-
-            encode_card_strs(obs[0], card_strs)
-            encode_card_strs(obs[1], [])
-
-            legal_action_ids = [ACTION_SPACE[c] for c in card_strs]
-            extracted_state = {'obs': obs, 'legal_actions': legal_action_ids}
-
-            (best_action, probs) = agent.eval_step(extracted_state)
-            decoded_probs = [(INVERSE_ACTION_SPACE[i], p) for (i, p) in enumerate(probs) if p != 0]
-
-            print("Evaluation of {}: choose {}, probs = {}".
-                format(card_strs, INVERSE_ACTION_SPACE[best_action], decoded_probs))
+            show_evaluation(['5-H', 'A-S'], agent)
+            show_evaluation(['A-S', '5-H'], agent)
+            show_evaluation(['A-S', '5-D'], agent)
+            show_evaluation(['J-S', '5-D'], agent)
+            show_evaluation(['J-S', '10-D'], agent)
 
     # Close files in the logger
     logger.close_files()
