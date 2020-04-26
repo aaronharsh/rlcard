@@ -7,11 +7,11 @@ from rlcard.games.simple_cribbage.game import NUM_CARDS_DEALT, NUM_RANKS, NUM_SU
 from rlcard.games.simple_cribbage.utils import encode_card_strs
 from rlcard.games.simple_cribbage.utils import ACTION_SPACE, ACTION_LIST
 
-STATE_SHAPE = (
+STATE_SHAPE = [
   2, # player, table
   NUM_RANKS,
   NUM_SUITS
-)
+]
 
 class SimpleCribbageEnv(Env):
 
