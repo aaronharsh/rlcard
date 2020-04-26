@@ -155,3 +155,6 @@ class SimpleCribbageGame(object):
             (boolean): True if the game is over
         '''
         return self.round.is_over
+
+    def summary(self):
+        return f"table = {self.round.table}; winner = {self.round.winner}; current_player = {self.round.current_player}"

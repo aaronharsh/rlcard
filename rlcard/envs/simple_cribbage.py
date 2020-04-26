@@ -45,7 +45,9 @@ class SimpleCribbageEnv(Env):
         return extracted_state
 
     def get_payoffs(self):
-        return self.game.get_payoffs()
+        payoff = self.game.get_payoffs()
+        # print(f"get_payoffs: {self.game.summary()}, payoff = {payoff}")
+        return payoff
 
     def _decode_action(self, action_id):
         legal_ids = self._get_legal_actions()
