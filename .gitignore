@@ -18,3 +18,4 @@ newtest/
 dist/
 cfr_model/
 models/
+.venv
