@@ -28,6 +28,7 @@ import random
 import numpy as np
 import tensorflow as tf
 from collections import namedtuple
+from rlcard.games.simple_cribbage.utils import print_dqn_params
 
 from rlcard.utils.utils import remove_illegal
 
