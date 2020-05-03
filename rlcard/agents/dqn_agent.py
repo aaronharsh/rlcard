@@ -32,7 +32,7 @@ from rlcard.games.simple_cribbage.utils import print_dqn_params
 
 from rlcard.utils.utils import remove_illegal
 
-Transition = namedtuple('Transition', ['state', 'legal_actions', 'action', 'reward', 'next_state', 'done'])
+Transition = namedtuple('Transition', ['state', 'action', 'reward', 'next_state', 'done'])
 
 
 class DQNAgent(object):
@@ -116,7 +116,7 @@ class DQNAgent(object):
             ts (list): a list of 5 elements that represent the transition
         '''
         (state, action, reward, next_state, done) = tuple(ts)
-        self.feed_memory(state['obs'], state['legal_actions'], action, reward, next_state['obs'], done)
+        self.feed_memory(state['obs'], action, reward, next_state['obs'], done)
         self.total_t += 1
         tmp = self.total_t - self.replay_memory_init_size
         if tmp>=0 and tmp%self.train_every == 0:
@@ -173,15 +173,10 @@ class DQNAgent(object):
         Returns:
             loss (float): The loss of the current batch.
         '''
-        state_batch, legal_actions_batch, action_batch, reward_batch, next_state_batch, done_batch = self.memory.sample()
+        state_batch, action_batch, reward_batch, next_state_batch, done_batch = self.memory.sample()
         # Calculate q values and targets (Double DQN)
-        q_values_next_including_illegal = self.q_estimator.predict(self.sess, next_state_batch)
-        q_values_next = np.empty(shape=q_values_next_including_illegal.shape, dtype=q_values_next_including_illegal.dtype)
-        q_values_next.fill(np.finfo(q_values_next.dtype).min)
-        for i in range(q_values_next.shape[0]):
-            q_values_next[i][legal_actions_batch[i]] = q_values_next_including_illegal[i][legal_actions_batch[i]]
+        q_values_next = self.q_estimator.predict(self.sess, next_state_batch)
         best_actions = np.argmax(q_values_next, axis=1)
-
         q_values_next_target = self.target_estimator.predict(self.sess, next_state_batch)
         target_batch = reward_batch + np.invert(done_batch).astype(np.float32) * \
             self.discount_factor * q_values_next_target[np.arange(self.batch_size), best_actions]
@@ -199,18 +194,17 @@ class DQNAgent(object):
 
         self.train_t += 1
 
-    def feed_memory(self, state, legal_actions, action, reward, next_state, done):
+    def feed_memory(self, state, action, reward, next_state, done):
         ''' Feed transition to memory
 
         Args:
             state (numpy.array): the current state
-            legal_actions (array)
             action (int): the performed action ID
             reward (float): the reward received
             next_state (numpy.array): the next state after performing the action
             done (boolean): whether the episode is finished
         '''
-        self.memory.save(state, legal_actions, action, reward, next_state, done)
+        self.memory.save(state, action, reward, next_state, done)
 
     def copy_params_op(self, global_vars):
         ''' Copys the variables of two estimator to others.
@@ -332,7 +326,7 @@ class Memory(object):
         self.batch_size = batch_size
         self.memory = []
 
-    def save(self, state, legal_actions, action, reward, next_state, done):
+    def save(self, state, action, reward, next_state, done):
         ''' Save transition into memory
 
         Args:
@@ -344,7 +338,7 @@ class Memory(object):
         '''
         if len(self.memory) == self.memory_size:
             self.memory.pop(0)
-        transition = Transition(state, legal_actions, action, reward, next_state, done)
+        transition = Transition(state, action, reward, next_state, done)
         self.memory.append(transition)
 
     def sample(self):
