@@ -63,12 +63,13 @@ with tf.Session() as sess:
                           scope='nfsp' + str(i),
                           action_num=env.action_num,
                           state_shape=env.state_shape,
-                          hidden_layers_sizes=[64,64],
+                          hidden_layers_sizes=[512,1024,2048,1024,512],
                           min_buffer_size_to_learn=memory_init_size,
                           q_replay_memory_init_size=memory_init_size,
                           train_every = train_every,
                           q_train_every=train_every,
-                          q_mlp_layers=[64,64])
+                          q_mlp_layers=[512,1024,2048,1024,512],
+                          rl_learning_rate=0.001)
         agents.append(agent)
     random_agent = RandomAgent(action_num=eval_env.action_num)
 
