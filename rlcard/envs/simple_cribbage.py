@@ -3,7 +3,7 @@ import numpy as np
 from rlcard.envs.env import Env
 from rlcard import models
 from rlcard.games.simple_cribbage.game import SimpleCribbageGame as Game
-from rlcard.games.simple_cribbage.game import NUM_CARDS_DEALT, NUM_RANKS, NUM_SUITS, MAX_NUM_CARDS_ON_TABLE_BEFORE_DETERMINISTIC
+from rlcard.games.simple_cribbage.game import NUM_CARDS_DEALT, NUM_RANKS, NUM_SUITS 
 from rlcard.games.simple_cribbage.utils import encode_card_strs
 from rlcard.games.simple_cribbage.utils import ACTION_SPACE, ACTION_LIST
 

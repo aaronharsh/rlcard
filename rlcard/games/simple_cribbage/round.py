@@ -39,7 +39,9 @@ class SimpleCribbageRound(object):
         score = 0
         if self.count == 15 or (self.table and Card.rank(self.table[-1]) == rank):
             score = 2
-        elif not players[0].hand and not players[1].hand:
+        elif self.count == 31:
+            score = 2
+        elif not self.get_legal_actions(players, 1 - self.current_player):
             score = 1
 
         if score > 0:
@@ -53,7 +55,9 @@ class SimpleCribbageRound(object):
 
 
     def get_legal_actions(self, players, player_id):
-        return cards2list(players[player_id].hand)
+        cocount = 31 - self.count
+        cards_under_31 = [c for c in players[player_id].hand if c.pips() <= cocount]
+        return cards2list(cards_under_31)
 
 
     def get_state(self, players, player_id):

@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import os
 import csv
+import datetime
 
 class Logger(object):
     ''' Logger saves the running results and helps make plots from the results
@@ -44,6 +45,7 @@ class Logger(object):
         self.writer.writerow({'timestep': timestep, 'reward': reward})
         print('')
         self.log('----------------------------------------')
+        self.log('  timestamp    |  ' + datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
         self.log('  timestep     |  ' + str(timestep))
         self.log('  reward       |  ' + str(reward))
         self.log('----------------------------------------')

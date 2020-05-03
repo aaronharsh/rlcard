@@ -22,7 +22,7 @@ eval_env = rlcard.make('simple-cribbage')
 # Set the iterations numbers and how frequently we evaluate/save plot
 evaluate_every = 10000
 evaluate_num = 10000
-episode_num = 1000000
+episode_num = 10000000
 
 # The intial memory size
 memory_init_size = 1000
@@ -100,10 +100,9 @@ with tf.Session() as sess:
         if episode % evaluate_every == 0:
             logger.log_performance(env.timestep, tournament(eval_env, evaluate_num)[0])
 
-            show_evaluation(['5-H', 'A-S'], agent)
-            show_evaluation(['A-S', '5-D'], agent)
-            show_evaluation(['J-S', '5-D'], agent)
-            show_evaluation(['J-S', '10-D'], agent)
+            show_evaluation(['A-S', '5-C', '5-H', '5-D'], agent)
+            show_evaluation(['A-C', 'A-H', 'A-D', 'J-D'], agent)
+            show_evaluation(['2-C', '3-H', '6-D', '7-D'], agent)
 
     # Close files in the logger
     logger.close_files()

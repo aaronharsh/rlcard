@@ -6,8 +6,7 @@ from rlcard.games.simple_cribbage.round import SimpleCribbageRound as Round
 from rlcard.games.simple_cribbage.card import RANKS, SUITS
 
 
-NUM_CARDS_DEALT = 2
-MAX_NUM_CARDS_ON_TABLE_BEFORE_DETERMINISTIC = NUM_CARDS_DEALT - 1
+NUM_CARDS_DEALT = 4
 
 NUM_RANKS = len(RANKS)
 NUM_SUITS = len(SUITS)
@@ -40,7 +39,7 @@ class SimpleCribbageGame(object):
 
         # Deal 7 cards to each player to prepare for the game
         for player in self.players:
-            self.dealer.deal_cards(player, 2)
+            self.dealer.deal_cards(player, NUM_CARDS_DEALT)
 
         # Initialize a Round
         self.round = Round(self.dealer, self.num_players)

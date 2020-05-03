@@ -1,4 +1,4 @@
-RANKS = ['A', '5', '10', 'J']
+RANKS = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K']
 SUITS = ['C', 'H', 'D', 'S']
 
 RANK_TO_OFFSET = {r:i for (i,r) in enumerate(RANKS)}
@@ -6,9 +6,18 @@ SUIT_TO_OFFSET = {s:i for (i,s) in enumerate(SUITS)}
 
 RANK_PIPS = {
     'A': 1,
+    '2': 2,
+    '3': 3,
+    '4': 4,
     '5': 5,
+    '6': 6,
+    '7': 7,
+    '8': 8,
+    '9': 9,
     '10': 10,
-    'J': 10
+    'J': 10,
+    'Q': 10,
+    'K': 10
 }
 
 class SimpleCribbageCard(object):
@@ -22,6 +31,8 @@ class SimpleCribbageCard(object):
     def get_str(self):
         return self.rank + '-' + self.suit
 
+    def pips(self):
+        return RANK_PIPS[self.rank]
 
     @staticmethod
     def rank(card_str):
