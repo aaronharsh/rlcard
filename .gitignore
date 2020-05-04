@@ -19,3 +19,4 @@ dist/
 cfr_model/
 models/
 .venv
+logs
