@@ -4,6 +4,7 @@
 import tensorflow as tf
 import numpy as np
 import os
+import argparse
 
 import rlcard
 from rlcard.envs.simple_cribbage import STATE_SHAPE
@@ -15,6 +16,18 @@ from rlcard.agents.random_agent import RandomAgent
 from rlcard.utils.utils import set_global_seed, tournament
 from rlcard.utils.logger import Logger
 
+
+parser = argparse.ArgumentParser(description='Train cribbage play model')
+parser.add_argument('--episodes', type=int, default=10000000)
+parser.add_argument('--rl-rate', type=float, default=0.001)
+parser.add_argument('--layers', type=str, default='512,1024,2048,1024,512')
+args = parser.parse_args()
+
+episodes = int(args.episodes)
+rl_rate = float(args.rl_rate)
+layers = [int(l) for l in args.layers.split(',')]
+
+
 # Make environment
 env = rlcard.make('simple-cribbage')
 eval_env = rlcard.make('simple-cribbage')
@@ -22,7 +35,7 @@ eval_env = rlcard.make('simple-cribbage')
 # Set the iterations numbers and how frequently we evaluate/save plot
 evaluate_every = 10000
 evaluate_num = 10000
-episode_num = 10000000
+episode_num = episodes
 
 # The intial memory size
 memory_init_size = 1000
@@ -63,13 +76,13 @@ with tf.Session() as sess:
                           scope='nfsp' + str(i),
                           action_num=env.action_num,
                           state_shape=env.state_shape,
-                          hidden_layers_sizes=[512,1024,2048,1024,512],
+                          hidden_layers_sizes=layers,
                           min_buffer_size_to_learn=memory_init_size,
                           q_replay_memory_init_size=memory_init_size,
                           train_every = train_every,
                           q_train_every=train_every,
-                          q_mlp_layers=[512,1024,2048,1024,512],
-                          rl_learning_rate=0.001)
+                          q_mlp_layers=layers,
+                          rl_learning_rate=rl_rate)
         agents.append(agent)
     random_agent = RandomAgent(action_num=eval_env.action_num)
 
