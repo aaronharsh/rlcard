@@ -37,12 +37,19 @@ def main():
     parser.add_argument('--episodes', type=int, default=10000000)
     parser.add_argument('--rl-rate', type=float, default=0.001)
     parser.add_argument('--layers', type=str, default='512,1024,2048,1024,512')
+    parser.add_argument('--activation', type=str, default='tanh')
     args = parser.parse_args()
 
     episodes = int(args.episodes)
     rl_rate = float(args.rl_rate)
     layers = [int(l) for l in args.layers.split(',')]
 
+    if args.activation == 'tanh':
+        activation = tf.tanh
+    elif args.activation == 'relu':
+        activation = tf.nn.relu
+    else:
+        raise Exception("Unknown activation function: " + args.activation)
 
     # Make environment
     env = rlcard.make('simple-cribbage')
@@ -84,7 +91,8 @@ def main():
                               train_every = train_every,
                               q_train_every=train_every,
                               q_mlp_layers=layers,
-                              rl_learning_rate=rl_rate)
+                              rl_learning_rate=rl_rate,
+                              activation=activation)
             agents.append(agent)
         random_agent = RandomAgent(action_num=eval_env.action_num)
 

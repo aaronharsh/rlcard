@@ -58,7 +58,8 @@ class NFSPAgent(object):
                  q_batch_size=256,
                  q_train_every=1,
                  q_mlp_layers=None,
-                 evaluate_with='average_policy'):
+                 evaluate_with='average_policy',
+                 activation=tf.tanh):
         ''' Initialize the NFSP agent.
 
         Args:
@@ -104,6 +105,7 @@ class NFSPAgent(object):
         self._prev_timestep = None
         self._prev_action = None
         self.evaluate_with = evaluate_with
+        self._activation = activation
 
         # Total timesteps
         self.total_t = 0
@@ -113,7 +115,7 @@ class NFSPAgent(object):
 
         with tf.variable_scope(scope):
             # Inner RL agent
-            self._rl_agent = DQNAgent(sess, scope+'_dqn', q_replay_memory_size, q_replay_memory_init_size, q_update_target_estimator_every, q_discount_factor, q_epsilon_start, q_epsilon_end, q_epsilon_decay_steps, q_batch_size, action_num, state_shape, q_train_every, q_mlp_layers, rl_learning_rate)
+            self._rl_agent = DQNAgent(sess, scope+'_dqn', q_replay_memory_size, q_replay_memory_init_size, q_update_target_estimator_every, q_discount_factor, q_epsilon_start, q_epsilon_end, q_epsilon_decay_steps, q_batch_size, action_num, state_shape, q_train_every, q_mlp_layers, rl_learning_rate, activation)
 
             with tf.variable_scope('sl'):
                 # Build supervised model
@@ -145,7 +147,7 @@ class NFSPAgent(object):
         # Average policy network.
         fc = self._X
         for dim in self._layer_sizes:
-            fc = tf.contrib.layers.fully_connected(fc, dim, activation_fn=tf.tanh)
+            fc = tf.contrib.layers.fully_connected(fc, dim, activation_fn=self._activation)
         self._avg_policy = tf.contrib.layers.fully_connected(fc, self._action_num, activation_fn=None)
         self._avg_policy_probs = tf.nn.softmax(self._avg_policy)
 
