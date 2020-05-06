@@ -17,9 +17,16 @@ my %counts_by_rate_layers;
 my %sum_loss_by_rate_layers;
 
 
+sub activation {
+    my $layers = shift;
+    $layers =~ /^(.*?)-/;
+    return $1;
+}
+
 sub total_neurons {
     my $layers = shift;
-    my @layers = split /x/, $layers;
+    $layers =~ /^.*?-(.*)/;
+    my @layers = split /x/, $1;
     return product(@layers);
 }
 
@@ -29,7 +36,9 @@ foreach my $file (@ARGV) {
     $base =~ s/^output-//;
     $base =~ s/,/x/g;
 
-    my ($rate, $layers) = ($base =~ /([\d.]*)-([\dx]*)$/);
+    my ($activation, $rate, $layers) = ($base =~ /(\w+)-([\d.]*)-([\dx]*)$/);
+
+    $layers = "$activation-$layers";
 
     $rates{$rate} = 1;
     $layerses{$layers} = 1;
@@ -52,7 +61,7 @@ foreach my $file (@ARGV) {
 my @rates = sort { $a <=> $b } keys %rates;
 
 print join('|', 'layers', @rates), "\n";
-foreach my $layers (sort { total_neurons($a) <=> total_neurons($b) } keys %layerses) {
+foreach my $layers (sort { activation($a) cmp activation($b) || total_neurons($a) <=> total_neurons($b) } keys %layerses) {
     print $layers;
     foreach my $rate (@rates) {
         my $count = $counts_by_rate_layers{$rate}{$layers};
