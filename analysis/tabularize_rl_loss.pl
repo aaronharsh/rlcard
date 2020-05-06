@@ -3,73 +3,54 @@
 use strict;
 use warnings;
 
-use File::Basename qw(basename);
-use List::Util qw(product);
+use FindBin;
+use lib $FindBin::Bin;
+
+use Util qw(
+    parse_filename
+    read_rl_losses_by_group
+    total_neurons_in_layer
+);
 
 
 my $show_group = 40;
-my $group_size = 10000;
 
-my %rates;
-my %layerses;
 
-my %counts_by_rate_layers;
-my %sum_loss_by_rate_layers;
+my %rows;
+my %columns;
+my %rl_loss_by_row_column;
 
 
 sub activation {
-    my $layers = shift;
-    $layers =~ /^(.*?)-/;
-    return $1;
-}
-
-sub total_neurons {
-    my $layers = shift;
-    $layers =~ /^.*?-(.*)/;
-    my @layers = split /x/, $1;
-    return product(@layers);
+    my ($row) = @_;
+    return $row =~ s/-.*//r;
 }
 
 
 foreach my $file (@ARGV) {
-    my $base = basename($file);
-    $base =~ s/^output-//;
-    $base =~ s/,/x/g;
+    my $file_info = parse_filename($file);
 
-    my ($activation, $rate, $layers) = ($base =~ /(\w+)-([\d.]*)-([\dx]*)$/);
+    my $row = "$file_info->{activation}-$file_info->{layers}";
+    my $column = $file_info->{rate};
 
-    $layers = "$activation-$layers";
+    $rows{$row} = 1;
+    $columns{$column} = 1;
 
-    $rates{$rate} = 1;
-    $layerses{$layers} = 1;
-
-    open my $fh, '<', $file or die "Can't read $file: $!";
-    while (<$fh>) {
-        while (/Agent nfsp0_dqn, step (\d+), rl-loss: ([.\d]*\d)/g) {
-            my $step = $1;
-            my $loss = $2;
-
-            my $group = int($step / $group_size);
-            next unless $group == $show_group;
-
-            $counts_by_rate_layers{$rate}{$layers}++;
-            $sum_loss_by_rate_layers{$rate}{$layers} += $loss;
-        }
-    }
+    my $rl_loss_by_group = read_rl_losses_by_group($file);
+    $rl_loss_by_row_column{$row}{$column} = $rl_loss_by_group->{$show_group};
 }
 
-my @rates = sort { $a <=> $b } keys %rates;
+my @columns = sort { $a <=> $b } keys %columns;
 
-print join('|', 'layers', @rates), "\n";
-foreach my $layers (sort { activation($a) cmp activation($b) || total_neurons($a) <=> total_neurons($b) } keys %layerses) {
-    print $layers;
-    foreach my $rate (@rates) {
-        my $count = $counts_by_rate_layers{$rate}{$layers};
-        my $sum_loss = $sum_loss_by_rate_layers{$rate}{$layers};
+print join('|', 'layers', @columns), "\n";
+foreach my $row (sort { activation($a) cmp activation($b) || total_neurons_in_layer($a) <=> total_neurons_in_layer($b) } keys %rows) {
+    print $row;
+    foreach my $column (@columns) {
+        my $loss = $rl_loss_by_row_column{$row}{$column};
 
         print '|';
-        if ($count) {
-            print $sum_loss / $count;
+        if (defined $loss) {
+            print $loss;
         }
     }
     print "\n";

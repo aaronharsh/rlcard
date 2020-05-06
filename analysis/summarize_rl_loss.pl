@@ -3,52 +3,49 @@
 use strict;
 use warnings;
 
-use File::Basename qw(basename);
+use FindBin;
+use lib $FindBin::Bin;
+
+use Util qw(
+    parse_filename
+    read_rl_losses_by_group
+    total_neurons_in_layer
+);
 
 
 my $group_size = 10000;
 
-my %files;
+my %columns;
 my %groups;
 
-my %counts_by_file_group;
-my %sum_loss_by_file_group;
+my %loss_by_column_group;
 
 
 foreach my $file (@ARGV) {
-    my $base = basename($file);
-    $base =~ s/^output-\w+-//;
-    $base =~ s/,/x/g;
+    my $file_info = parse_filename($file);
 
-    $files{$base} = 1;
+    my $column = "$file_info->{activation}-$file_info->{rate}-$file_info->{layers}";
 
-    open my $fh, '<', $file or die "Can't read $file: $!";
-    while (<$fh>) {
-        while (/Agent nfsp0_dqn, step (\d+), rl-loss: ([.\d]*\d)/g) {
-            my $step = $1;
-            my $loss = $2;
+    $columns{$column} = 1;
 
-            my $group = int($step / $group_size);
-
-            $groups{$group} = 1;
-            $counts_by_file_group{$base}{$group}++;
-            $sum_loss_by_file_group{$base}{$group} += $loss;
-        }
+    my $rl_losses_by_group = read_rl_losses_by_group($file);
+    while (my ($group, $loss) = each %$rl_losses_by_group) {
+        $groups{$group} = 1;
+        $loss_by_column_group{$column}{$group} = $loss;
     }
 }
 
-my @files = sort keys %files;
+my @columns = sort keys %columns;
 
-print join('|', 'group', @files), "\n";
+print join('|', 'group', @columns), "\n";
 foreach my $group (sort { $a <=> $b } keys %groups) {
     print $group;
-    foreach my $file (@files) {
-        my $count = $counts_by_file_group{$file}{$group};
-        my $sum_loss = $sum_loss_by_file_group{$file}{$group};
+    foreach my $column (@columns) {
+        my $loss = $loss_by_column_group{$column}{$group};
 
         print '|';
-        if ($count) {
-            print $sum_loss / $count;
+        if (defined $loss) {
+            print $loss;
         }
     }
     print "\n";
