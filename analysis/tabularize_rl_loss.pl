@@ -29,7 +29,7 @@ foreach my $file (@ARGV) {
     $base =~ s/^output-//;
     $base =~ s/,/x/g;
 
-    my ($rate, $layers) = ($base =~ /^([\d.]*)-(.*)/);
+    my ($rate, $layers) = ($base =~ /([\d.]*)-([\dx]*)$/);
 
     $rates{$rate} = 1;
     $layerses{$layers} = 1;

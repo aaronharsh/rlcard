@@ -17,7 +17,7 @@ my %sum_loss_by_file_group;
 
 foreach my $file (@ARGV) {
     my $base = basename($file);
-    $base =~ s/^output-//;
+    $base =~ s/^output-\w+-//;
     $base =~ s/,/x/g;
 
     $files{$base} = 1;
