@@ -105,6 +105,12 @@ def main():
         # Init a Logger to plot the learning curve
         logger = Logger(log_dir)
 
+        # Save model
+        save_dir = 'models/simple_cribbage_nfsp'
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
+        saver = tf.train.Saver(keep_checkpoint_every_n_hours=2, max_to_keep=5)
+
         for episode in range(episode_num):
 
             # First sample a policy for the episode
@@ -127,19 +133,17 @@ def main():
                 show_evaluation(['A-C', 'A-H', 'A-D', 'J-D'], agent)
                 show_evaluation(['2-C', '3-H', '6-D', '7-D'], agent)
 
+            if episode % 10000 == 0:
+                saver.save(sess, os.path.join(save_dir, 'model'), global_step=episode)
+
         # Close files in the logger
         logger.close_files()
 
         # Plot the learning curve
         logger.plot('NFSP')
-        
-        # Save model
-        save_dir = 'models/simple_cribbage_nfsp'
-        if not os.path.exists(save_dir):
-            os.makedirs(save_dir)
-        saver = tf.train.Saver()
+
         saver.save(sess, os.path.join(save_dir, 'model'))
-    
+
 
 if __name__ == '__main__':
     main()
