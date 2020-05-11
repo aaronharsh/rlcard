@@ -16,20 +16,20 @@ from rlcard.agents.random_agent import RandomAgent
 from rlcard.utils.utils import set_global_seed, tournament
 from rlcard.utils.logger import Logger
 
-def show_evaluation(card_strs, agent):
+def show_evaluation(hand_card_strs, table_card_strs, agent):
     obs = np.zeros(STATE_SHAPE, dtype=int)
 
-    encode_card_strs(obs[0], card_strs)
-    encode_card_strs(obs[1], [])
+    encode_card_strs(obs[0], hand_card_strs)
+    encode_card_strs(obs[1], table_card_strs)
 
-    legal_action_ids = [ACTION_SPACE[c] for c in card_strs]
+    legal_action_ids = [ACTION_SPACE[c] for c in hand_card_strs]
     extracted_state = {'obs': obs, 'legal_actions': legal_action_ids}
 
     (best_action, probs) = agent.eval_step(extracted_state, 'best_response')
     decoded_probs = [(INVERSE_ACTION_SPACE[i], p) for (i, p) in enumerate(probs) if p != 0]
 
-    print("Evaluation of {}: choose {}, probs = {}".
-        format(card_strs, INVERSE_ACTION_SPACE[best_action], decoded_probs))
+    print("Evaluation of hand {} / table {}: choose {}, probs = {}".
+        format(hand_card_strs, table_card_strs, INVERSE_ACTION_SPACE[best_action], decoded_probs))
 
 
 def main():
@@ -129,9 +129,12 @@ def main():
             if episode % evaluate_every == 0:
                 logger.log_performance(env.timestep, tournament(eval_env, evaluate_num)[0])
 
-                show_evaluation(['A-S', '5-C', '5-H', '5-D'], agent)
-                show_evaluation(['A-C', 'A-H', 'A-D', 'J-D'], agent)
-                show_evaluation(['2-C', '3-H', '6-D', '7-D'], agent)
+                show_evaluation(['A-S', '5-C', '5-H', '5-D'], [], agents[0])
+                show_evaluation(['A-C', 'A-H', 'A-D', 'J-D'], [], agents[0])
+                show_evaluation(['2-C', '3-H', '6-D', '7-D'], [], agents[0])
+
+                show_evaluation(['A-S', '2-C', '3-H', '5-D'], ['J-S'], agents[1])
+                show_evaluation(['A-S', '2-C', '3-H', '5-D'], ['3-S'], agents[1])
 
             if episode % 10000 == 0:
                 saver.save(sess, os.path.join(save_dir, 'model'), global_step=episode)
