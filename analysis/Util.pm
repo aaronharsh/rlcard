@@ -18,7 +18,7 @@ use constant GROUP_SIZE => 10000;
 
 sub parse_filename {
     my ($filename) = @_;
-    $filename =~ /output-(\w+)-([\d.]*)-(.*)/;
+    $filename =~ /output-(\S+)-([\d.]*)-(.*)/;
 
     my $activation = $1;
     my $rate = $2;

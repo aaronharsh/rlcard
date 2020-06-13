@@ -9,7 +9,9 @@ output_dir = 'logs'
 
 activations = ['relu', 'tanh']
 
-rl_rates = [0.001, 0.005, 0.0005, 0.0001, 0.01, 0.0002, 0.0008]
+rl_rates = [0.0002, 0.0005, 0.001]
+
+dropout_keeps=[0.9, 0.8, 0.5, 1.0]
 
 layerses = [
     '128,128',
@@ -27,8 +29,9 @@ for activation in activations:
         print(f"rl_rate {rl_rate}")
         for layers in layerses:
             print(f"layers {layers}")
-            output_file = f"{output_dir}/output-{activation}-{rl_rate}-{layers}"
-            if not pathlib.Path(output_file).exists():
-                command = f"PYTHONPATH=. python examples/simple_cribbage_nfsp.py --episodes={episodes} --layers={layers} --rl-rate={rl_rate} --activation={activation} > {output_file}"
-                print(command)
-                os.system(command)
+            for dropout_keep in dropout_keeps:
+                output_file = f"{output_dir}/output-{activation}-dropout={dropout_keep}-{rl_rate}-{layers}"
+                if not pathlib.Path(output_file).exists():
+                    command = f"PYTHONPATH=. python examples/simple_cribbage_nfsp.py --episodes={episodes} --layers={layers} --rl-rate={rl_rate} --activation={activation} --dropout={dropout_keep} > {output_file}"
+                    print(command)
+                    os.system(command)

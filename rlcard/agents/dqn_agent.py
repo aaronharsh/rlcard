@@ -53,7 +53,8 @@ class DQNAgent(object):
                  train_every=1,
                  mlp_layers=None,
                  learning_rate=0.00005,
-                 activation=tf.nn.tanh):
+                 activation=tf.nn.tanh,
+                 dropout=1.0):
 
         '''
         Q-Learning algorithm for off-policy TD control using Function Approximation.
@@ -92,6 +93,7 @@ class DQNAgent(object):
         self.action_num = action_num
         self.train_every = train_every
         self._activation = activation
+        self._dropout = dropout
 
         # Total timesteps
         self.total_t = 0
@@ -103,8 +105,8 @@ class DQNAgent(object):
         self.epsilons = np.linspace(epsilon_start, epsilon_end, epsilon_decay_steps)
 
         # Create estimators
-        self.q_estimator = Estimator(scope=self.scope+"_q", action_num=action_num, learning_rate=learning_rate, state_shape=state_shape, mlp_layers=mlp_layers, activation=activation)
-        self.target_estimator = Estimator(scope=self.scope+"_target_q", action_num=action_num, learning_rate=learning_rate, state_shape=state_shape, mlp_layers=mlp_layers, activation=activation)
+        self.q_estimator = Estimator(scope=self.scope+"_q", action_num=action_num, learning_rate=learning_rate, state_shape=state_shape, mlp_layers=mlp_layers, activation=activation, dropout=dropout)
+        self.target_estimator = Estimator(scope=self.scope+"_target_q", action_num=action_num, learning_rate=learning_rate, state_shape=state_shape, mlp_layers=mlp_layers, activation=activation, dropout=dropout)
 
         # Create replay memory
         self.memory = Memory(replay_memory_size, batch_size)
@@ -226,7 +228,7 @@ class Estimator():
         This network is used for both the Q-Network and the Target Network.
     '''
 
-    def __init__(self, scope="estimator", action_num=2, learning_rate=0.001, state_shape=None, mlp_layers=None, activation=tf.nn.tanh):
+    def __init__(self, scope="estimator", action_num=2, learning_rate=0.001, state_shape=None, mlp_layers=None, activation=tf.nn.tanh, dropout=1.0):
         ''' Initilalize an Estimator object.
 
         Args:
@@ -239,6 +241,7 @@ class Estimator():
         self.state_shape = state_shape if isinstance(state_shape, list) else [state_shape]
         self.mlp_layers = map(int, mlp_layers)
         self._activation = activation
+        self._dropout = dropout
 
         with tf.variable_scope(scope):
             # Build the graph
@@ -274,6 +277,8 @@ class Estimator():
         fc = tf.contrib.layers.flatten(X)
         for dim in self.mlp_layers:
             fc = tf.contrib.layers.fully_connected(fc, dim, activation_fn=self._activation)
+            if self._dropout != 1.0 and self._dropout != 0.0:
+                fc = tf.contrib.layers.dropout(fc, keep_prob=self._dropout)
         self.predictions = tf.contrib.layers.fully_connected(fc, self.action_num, activation_fn=None)
 
         # Get the predictions for the chosen actions only

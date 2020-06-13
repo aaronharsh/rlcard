@@ -38,6 +38,7 @@ def main():
     parser.add_argument('--rl-rate', type=float, default=0.001)
     parser.add_argument('--layers', type=str, default='512,1024,2048,1024,512')
     parser.add_argument('--activation', type=str, default='tanh')
+    parser.add_argument('--dropout', type=float, default='1.0')
     args = parser.parse_args()
 
     episodes = int(args.episodes)
@@ -92,7 +93,8 @@ def main():
                               q_train_every=train_every,
                               q_mlp_layers=layers,
                               rl_learning_rate=rl_rate,
-                              activation=activation)
+                              activation=activation,
+                              dropout=args.dropout)
             agents.append(agent)
         random_agent = RandomAgent(action_num=eval_env.action_num)
 
